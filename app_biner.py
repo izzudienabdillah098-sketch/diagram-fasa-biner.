@@ -5,9 +5,9 @@ import time
 
 st.set_page_config(page_title="Simulasi Fasa Biner A2B3", layout="wide")
 
-st.title("🧪 Aplikasi Interaktif Diagram Fasa Biner: Pembentukan Senyawa $A_2B_3$")
+st.title("🧪 Aplikasi Interaktif Diagram Fasa Biner: Pembentukan Senyawa A₂B₃")
 st.markdown("""
-Aplikasi ini dibuat khusus untuk mendukung presentasi video mengenai **Sistem Dua Komponen yang Tidak Bercampur pada Fase Padat dan Membentuk Produk Baru ($A_2B_3$)**.
+Aplikasi ini dibuat khusus untuk mendukung presentasi video mengenai **Sistem Dua Komponen yang Tidak Bercampur pada Fase Padat dan Membentuk Produk Baru (A₂B₃)**.
 """)
 
 # --- MODEL MATEMATIS DIAGRAM FASA BINER ---
@@ -23,10 +23,8 @@ def get_liquidus(x):
 
 def get_phase_info(x, t):
     t_liq = get_liquidus(x)
-    
     if t > t_liq:
         return "Fase Cair (Larutan Homogen A + B)", "1 Fase (Cair)"
-    
     if x < 0.6:
         t_sol = 500.0
         if t > t_sol:
@@ -36,7 +34,6 @@ def get_phase_info(x, t):
                 return "Cair + Padatan Senyawa A₂B₃", "2 Fase (Cair + Padat A₂B₃)"
         else:
             return "Campuran Padat (Padat A + Padat A₂B₃)", "Fase Padat Campuran"
-            
     else:
         t_sol = 450.0
         if t > t_sol:
@@ -49,6 +46,10 @@ def get_phase_info(x, t):
 
 x_grid = np.linspace(0, 1, 300)
 y_liquidus = [get_liquidus(x) for x in x_grid]
+
+# --- INISIALISASI VARIABEL AWAL ---
+comp_B = 0.4
+temp = 600
 
 # --- KONTROL SIDEBAR ---
 st.sidebar.header("🕹️ Kontrol Simulasi Video")
@@ -105,26 +106,26 @@ fig.add_trace(go.Scatter(x=[0.6, 0.6], y=[200, 900], mode='lines', name='Senyawa
 fig.add_trace(go.Scatter(x=[0.3, 0.8], y=[500, 450], mode='markers', name='Titik Eutektik', marker=dict(color='black', size=10, symbol='x')))
 fig.add_trace(go.Scatter(x=[0.6], y=[900], mode='markers', name='Titik Leleh Kongruen', marker=dict(color='darkgreen', size=10, symbol='diamond')))
 
-# 2. Titik Tracker (Teks diubah menjadi HITAM TEBAL)
+# 2. Titik Tracker (Warna Hitam Dipertahankan Lewat Tag HTML Bold)
 fig.add_trace(go.Scatter(
     x=[comp_B], y=[temp], mode='markers+text', name='Titik Kondisi',
     marker=dict(color='gold', size=16, symbol='circle', line=dict(color='black', width=2)),
-    text=[f"<b>{phase_detail}</b>"], textposition="top right",
-    textfont=dict(color="black", size=13)  # <-- FIX WARNA TEKS TRACKER KUNING
+    text=[f"<b>{phase_detail}</b>"], textposition="top right"
 ))
 
-# 3. Label Area Grafik (Semua diubah menjadi warna HITAM TEBAL)
-fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False, font=dict(size=14, color="black"))
-fig.add_annotation(x=0.12, y=580, text="<b>Cair +<br>Padat A</b>", showarrow=False, font=dict(size=12, color="black"))
-fig.add_annotation(x=0.43, y=620, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12, color="black"))
-fig.add_annotation(x=0.72, y=600, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12, color="black"))
-fig.add_annotation(x=0.90, y=550, text="<b>Cair +<br>Padat B</b>", showarrow=False, font=dict(size=12, color="black"))
-fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b>", showarrow=False, font=dict(size=13, color="black"))
-fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b>", showarrow=False, font=dict(size=13, color="black"))
+# 3. Label Area Grafik (Hitam Pekat Menggunakan Tag HTML Bold)
+fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False, font=dict(size=14))
+fig.add_annotation(x=0.12, y=580, text="<b>Cair +<br>Padat A</b>", showarrow=False, font=dict(size=12))
+fig.add_annotation(x=0.43, y=620, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12))
+fig.add_annotation(x=0.72, y=600, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12))
+fig.add_annotation(x=0.90, y=550, text="<b>Cair +<br>Padat B</b>", showarrow=False, font=dict(size=12))
+fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b>", showarrow=False, font=dict(size=13))
+fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b>", showarrow=False, font=dict(size=13))
 
+# Versi update_layout yang super aman untuk Python 3.14
 fig.update_layout(
-    xaxis=dict(title='Komposisi Campuran (Fraksi Mol B -> X_B)', range=[0, 1], gridcolor='lightgray', titlefont=dict(color='black'), tickfont=dict(color='black')),
-    yaxis=dict(title='Temperatur / Suhu (°C)', range=[150, 1050], gridcolor='lightgray', titlefont=dict(color='black'), tickfont=dict(color='black')),
+    xaxis=dict(title='Komposisi Campuran (Fraksi Mol B -> X_B)', range=[0, 1], gridcolor='lightgray'),
+    yaxis=dict(title='Temperatur / Suhu (°C)', range=[150, 1050], gridcolor='lightgray'),
     height=600, plot_bgcolor='white'
 )
 
