@@ -79,7 +79,13 @@ elif mode == "Animasi Pendinginan Campuran":
                 fig.add_trace(go.Scatter(x=[0.6, 0.6], y=[200, 900], mode='lines', name='Senyawa A₂B₃', line=dict(color='green', width=2)))
                 
                 fig.add_trace(go.Scatter(x=[comp_B], y=[t], mode='markers', marker=dict(color='gold', size=15, line=dict(color='black', width=2)), name='Titik Sistem'))
-                fig.update_layout(xaxis=dict(title='Komposisi Fraksi Mol B (X_B)', range=[0, 1]), yaxis=dict(title='Temperatur (°C)', range=[200, 1050]), height=550)
+                
+                fig.update_layout(
+                    xaxis=dict(title='Komposisi Fraksi Mol B (X_B)', range=[0, 1]), 
+                    yaxis=dict(title='Temperatur (°C)', range=[200, 1050]), 
+                    height=550,
+                    font=dict(color="black", size=12)
+                )
                 st.plotly_chart(fig, use_container_width=True)
             time.sleep(0.08)
         st.success("Pendinginan Selesai! Zat telah membeku sempurna.")
@@ -106,27 +112,29 @@ fig.add_trace(go.Scatter(x=[0.6, 0.6], y=[200, 900], mode='lines', name='Senyawa
 fig.add_trace(go.Scatter(x=[0.3, 0.8], y=[500, 450], mode='markers', name='Titik Eutektik', marker=dict(color='black', size=10, symbol='x')))
 fig.add_trace(go.Scatter(x=[0.6], y=[900], mode='markers', name='Titik Leleh Kongruen', marker=dict(color='darkgreen', size=10, symbol='diamond')))
 
-# 2. Titik Tracker (Warna Hitam Dipertahankan Lewat Tag HTML Bold)
+# 2. Titik Tracker
 fig.add_trace(go.Scatter(
     x=[comp_B], y=[temp], mode='markers+text', name='Titik Kondisi',
     marker=dict(color='gold', size=16, symbol='circle', line=dict(color='black', width=2)),
     text=[f"<b>{phase_detail}</b>"], textposition="top right"
 ))
 
-# 3. Label Area Grafik (Hitam Pekat Menggunakan Tag HTML Bold)
-fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False, font=dict(size=14))
-fig.add_annotation(x=0.12, y=580, text="<b>Cair +<br>Padat A</b>", showarrow=False, font=dict(size=12))
-fig.add_annotation(x=0.43, y=620, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12))
-fig.add_annotation(x=0.72, y=600, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12))
-fig.add_annotation(x=0.90, y=550, text="<b>Cair +<br>Padat B</b>", showarrow=False, font=dict(size=12))
-fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b>", showarrow=False, font=dict(size=13))
-fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b>", showarrow=False, font=dict(size=13))
+# 3. Label Area Grafik
+fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False)
+fig.add_annotation(x=0.12, y=580, text="<b>Cair +<br>Padat A</b>", showarrow=False)
+fig.add_annotation(x=0.43, y=620, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False)
+fig.add_annotation(x=0.72, y=600, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False)
+fig.add_annotation(x=0.90, y=550, text="<b>Cair +<br>Padat B</b>", showarrow=False)
+fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b>", showarrow=False)
+fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b>", showarrow=False)
 
-# Versi update_layout yang super aman untuk Python 3.14
+# Memaksa semua komponen teks berwarna hitam pekat secara global
 fig.update_layout(
     xaxis=dict(title='Komposisi Campuran (Fraksi Mol B -> X_B)', range=[0, 1], gridcolor='lightgray'),
     yaxis=dict(title='Temperatur / Suhu (°C)', range=[150, 1050], gridcolor='lightgray'),
-    height=600, plot_bgcolor='white'
+    height=600, 
+    plot_bgcolor='white',
+    font=dict(color="black", size=12)
 )
 
 st.plotly_chart(fig, use_container_width=True)
