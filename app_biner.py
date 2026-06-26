@@ -10,10 +10,7 @@ st.markdown("""
 Aplikasi ini dibuat khusus untuk mendukung presentasi video mengenai **Sistem Dua Komponen yang Tidak Bercampur pada Fase Padat dan Membentuk Produk Baru ($A_2B_3$)**.
 """)
 
-# --- MODEL MATEMATIS DIAGRAM FASA BINER (CONGRUENT MELTING COMPOUND) ---
-# Titik Leleh Komponen: A = 800C, B = 700C, A2B3 = 900C (pada X_B = 0.6)
-# Eutektik 1 di X_B = 0.3 (T = 500C), Eutektik 2 di X_B = 0.8 (T = 450C)
-
+# --- MODEL MATEMATIS DIAGRAM FASA BINER ---
 def get_liquidus(x):
     if x < 0.3:
         return 800 - 300 * (x / 0.3)**2
@@ -27,11 +24,9 @@ def get_liquidus(x):
 def get_phase_info(x, t):
     t_liq = get_liquidus(x)
     
-    # Di atas garis liquidus -> Fase Cair Semuanya
     if t > t_liq:
         return "Fase Cair (Larutan Homogen A + B)", "1 Fase (Cair)"
     
-    # Daerah Eutektik Kiri (X < 0.6)
     if x < 0.6:
         t_sol = 500.0
         if t > t_sol:
@@ -42,7 +37,6 @@ def get_phase_info(x, t):
         else:
             return "Campuran Padat (Padat A + Padat A₂B₃)", "Fase Padat Campuran"
             
-    # Daerah Eutektik Kanan (X >= 0.6)
     else:
         t_sol = 450.0
         if t > t_sol:
@@ -53,7 +47,6 @@ def get_phase_info(x, t):
         else:
             return "Campuran Padat (Padat A₂B₃ + Padat B)", "Fase Padat Campuran"
 
-# Pembuatan Data Garis Kva Liquidus untuk Plotting
 x_grid = np.linspace(0, 1, 300)
 y_liquidus = [get_liquidus(x) for x in x_grid]
 
@@ -78,7 +71,6 @@ elif mode == "Animasi Pendinginan Campuran":
             with placeholder.container():
                 st.metric(label="Status Sistem Saat Ini", value=phase_text, delta=f"Suhu: {t:.1f} °C | X_B: {comp_B:.2f}")
                 
-                # Plotting dalam loop animasi
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(x=x_grid, y=y_liquidus, mode='lines', name='Garis Liquidus', line=dict(color='red', width=3)))
                 fig.add_trace(go.Scatter(x=[0, 0.6], y=[500, 500], mode='lines', name='Solidus Eutektik 1', line=dict(color='blue', dash='dash')))
@@ -92,7 +84,7 @@ elif mode == "Animasi Pendinginan Campuran":
         st.success("Pendinginan Selesai! Zat telah membeku sempurna.")
         st.stop()
     else:
-        temp = 950 # Default sebelum tombol ditekan
+        temp = 950
 
 # --- DISPLAY UTAMA FOR MANUAL MODE ---
 phase_text, phase_detail = get_phase_info(comp_B, temp)
@@ -102,42 +94,37 @@ col1.metric("Komposisi (X_B)", f"{comp_B:.2f}")
 col2.metric("Temperatur (T)", f"{temp} °C")
 col3.metric("Keadaan Fase", phase_text)
 
-# Membuat Plot Grafik Utama
 fig = go.Figure()
 
-# 1. Garis Liquidus
-fig.add_trace(go.Scatter(x=x_grid, y=y_liquidus, mode='lines', name='Garis Liquidus (Batas Cair)', line=dict(color='darkred', width=3)))
+# 1. Garis Utama Diagram
+fig.add_trace(go.Scatter(x=x_grid, y=y_liquidus, mode='lines', name='Garis Liquidus', line=dict(color='darkred', width=3)))
+fig.add_trace(go.Scatter(x=[0, 0.6], y=[500, 500], mode='lines', name='Garis Solidus 1', line=dict(color='blue', dash='dash')))
+fig.add_trace(go.Scatter(x=[0.6, 1.0], y=[450, 450], mode='lines', name='Garis Solidus 2', line=dict(color='purple', dash='dash')))
+fig.add_trace(go.Scatter(x=[0.6, 0.6], y=[200, 900], mode='lines', name='Senyawa A₂B₃ (60% B)', line=dict(color='darkgreen', width=2.5)))
 
-# 2. Garis Solidus (Garis Eutektik)
-fig.add_trace(go.Scatter(x=[0, 0.6], y=[500, 500], mode='lines', name='Garis Solidus 1 (500 °C)', line=dict(color='blue', dash='dash')))
-fig.add_trace(go.Scatter(x=[0.6, 1.0], y=[450, 450], mode='lines', name='Garis Solidus 2 (450 °C)', line=dict(color='purple', dash='dash')))
-
-# 3. Garis Senyawa Baru A2B3 (Kongruen di X = 0.6)
-fig.add_trace(go.Scatter(x=[0.6, 0.6], y=[200, 900], mode='lines', name='Senyawa Senyawa A₂B₃ (60% B)', line=dict(color='darkgreen', width=2.5)))
-
-# 4. Titik Utama (Eutektik & Senyawa murni)
 fig.add_trace(go.Scatter(x=[0.3, 0.8], y=[500, 450], mode='markers', name='Titik Eutektik', marker=dict(color='black', size=10, symbol='x')))
-fig.add_trace(go.Scatter(x=[0.6], y=[900], mode='markers', name='Titik Leleh Kongruen A₂B₃', marker=dict(color='darkgreen', size=10, symbol='diamond')))
+fig.add_trace(go.Scatter(x=[0.6], y=[900], mode='markers', name='Titik Leleh Kongruen', marker=dict(color='darkgreen', size=10, symbol='diamond')))
 
-# 5. Titik Sistem Tracker
+# 2. Titik Tracker (Teks diubah menjadi HITAM TEBAL)
 fig.add_trace(go.Scatter(
     x=[comp_B], y=[temp], mode='markers+text', name='Titik Kondisi',
     marker=dict(color='gold', size=16, symbol='circle', line=dict(color='black', width=2)),
-    text=[f"  {phase_detail}"], textposition="top right"
+    text=[f"<b>{phase_detail}</b>"], textposition="top right",
+    textfont=dict(color="black", size=13)  # <-- FIX WARNA TEKS TRACKER KUNING
 ))
 
-# Label Area Tekstual
-fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False, font=dict(size=14, color="red"))
-fig.add_annotation(x=0.12, y=580, text="Cair +<br>Padat A", showarrow=False)
-fig.add_annotation(x=0.45, y=620, text="Cair +<br>Padat A₂B₃", showarrow=False)
-fig.add_annotation(x=0.70, y=600, text="Cair +<br>Padat A₂B₃", showarrow=False)
-fig.add_annotation(x=0.90, y=550, text="Cair +<br>Padat B", showarrow=False)
-fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b><br>(Immiscible Solid)", showarrow=False, font=dict(color="blue"))
-fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b><br>(Immiscible Solid)", showarrow=False, font=dict(color="purple"))
+# 3. Label Area Grafik (Semua diubah menjadi warna HITAM TEBAL)
+fig.add_annotation(x=0.5, y=980, text="<b>FASE CAIR (LARUTAN HOMOGEN)</b>", showarrow=False, font=dict(size=14, color="black"))
+fig.add_annotation(x=0.12, y=580, text="<b>Cair +<br>Padat A</b>", showarrow=False, font=dict(size=12, color="black"))
+fig.add_annotation(x=0.43, y=620, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12, color="black"))
+fig.add_annotation(x=0.72, y=600, text="<b>Cair +<br>Padat A₂B₃</b>", showarrow=False, font=dict(size=12, color="black"))
+fig.add_annotation(x=0.90, y=550, text="<b>Cair +<br>Padat B</b>", showarrow=False, font=dict(size=12, color="black"))
+fig.add_annotation(x=0.25, y=320, text="<b>PADAT A + PADAT A₂B₃</b>", showarrow=False, font=dict(size=13, color="black"))
+fig.add_annotation(x=0.80, y=320, text="<b>PADAT A₂B₃ + PADAT B</b>", showarrow=False, font=dict(size=13, color="black"))
 
 fig.update_layout(
-    xaxis=dict(title='Komposisi Campuran (Fraksi Mol B -> X_B)', range=[0, 1], gridcolor='lightgray'),
-    yaxis=dict(title='Temperatur / Suhu (°C)', range=[150, 1050], gridcolor='lightgray'),
+    xaxis=dict(title='Komposisi Campuran (Fraksi Mol B -> X_B)', range=[0, 1], gridcolor='lightgray', titlefont=dict(color='black'), tickfont=dict(color='black')),
+    yaxis=dict(title='Temperatur / Suhu (°C)', range=[150, 1050], gridcolor='lightgray', titlefont=dict(color='black'), tickfont=dict(color='black')),
     height=600, plot_bgcolor='white'
 )
 
